@@ -42,7 +42,7 @@ input[type=text],select{font:600 18px "Cormorant Garamond",serif;padding:8px 12p
 .ok{background:var(--okbg)!important;border-color:var(--ok)!important}.no{background:var(--badbg)!important;border-color:var(--bad)!important}
 .opt{display:block;padding:9px 12px;margin:6px 0;border:1.5px solid var(--line);border-radius:6px;cursor:pointer;background:#fffaf0}.opt input{margin-right:8px;accent-color:var(--wine)}
 .score{font:700 20px "Cormorant Garamond",serif;margin-top:14px;color:var(--wine)}
-.bank{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.bank span{background:var(--wine);color:var(--cream);padding:2px 12px;border-radius:14px;font-size:16px}
+.bank{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.bank span.bw,.bank>span{background:var(--wine);color:var(--cream);padding:2px 12px;border-radius:14px;font-size:16px}
 .nx{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:18px}
 .fc{min-height:170px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.3rem;padding:26px;cursor:pointer;border:2px solid var(--gold);border-radius:6px;background:#fffaf0;color:var(--wine)}
 .fc b{font:italic 700 2.3rem "Playfair Display",serif;color:var(--gold2)}
@@ -87,6 +87,21 @@ input[type=text],select{font:600 18px "Cormorant Garamond",serif;padding:8px 12p
 #cur.in{transform:none;pointer-events:all}#cur.out{transform:translateY(101%)}#cur.rs{transition:none}
 #cur div{opacity:0;transition:opacity .4s .25s;padding:20px}#cur.in div{opacity:1}
 @media (prefers-reduced-motion:reduce){#cur,.sec.on,.pick,.bar i{transition:none;animation:none}}
+
+/* tap-a-word popup */
+#pop{position:fixed;left:0;top:0;z-index:60;width:min(340px,calc(100vw - 20px));background:var(--cream);color:var(--ink);border:2px solid var(--gold);border-radius:10px;padding:12px 16px 14px;box-shadow:0 14px 40px rgba(0,0,0,.45);font:500 18px/1.4 "Cormorant Garamond",Georgia,serif}
+#pop::after{content:"";position:absolute;left:var(--ax,50%);width:14px;height:14px;background:var(--cream);border:2px solid var(--gold);transform:translateX(-50%) rotate(45deg)}
+#pop.b::after{top:-9px;border-right:0;border-bottom:0}#pop.t::after{bottom:-9px;border-left:0;border-top:0}
+#pop .ph{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+#pop .pw{font:italic 700 1.55rem/1.2 "Playfair Display",serif;color:var(--wine)}
+#pop .px{flex:none;width:34px;height:34px;margin:-4px -8px 0 0;border:0;background:transparent;color:var(--mute);font:400 26px/1 system-ui,sans-serif;cursor:pointer}
+#pop p{margin:.2em 0}#pop .pd{font-weight:700}#pop .pe{font-style:italic;color:var(--mute);font-size:17px}
+#pop .pa{margin-top:8px;padding:5px 16px;font-size:16px}
+.tl{margin-top:6px;font-size:18px;line-height:1.5;text-align:center}.tl .lg{color:var(--cream)}
+.wrow .tl{text-align:left;margin-top:2px;color:var(--ink);font-size:17px}.wrow .lg{color:var(--cream);font-size:12px}
+.bank .bw{display:inline-flex;flex-direction:column;align-items:center;line-height:1.2;padding:4px 12px;cursor:pointer;user-select:none}
+.bank .bw small{font-size:13px;color:var(--gold);white-space:nowrap}
+.bank .bw:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </style></head><body>
 <div id="cur"><div><span class="k" id="ck"></span><h1 id="ct"></h1></div></div>
 
@@ -573,6 +588,13 @@ const BD=[{
 "clutches at":["tries to seize or grasp","changallab olmoqchi bo‘ladi","хватается за","He clutches at the rope."],
 "instinctively":["naturally; without thinking","beixtiyor, instinktiv ravishda","инстинктивно","She instinctively stepped back."]
 }];
+Object.assign(BD[2],{"obtained":["got something, especially by effort","olingan, qo‘lga kiritilgan","полученный, добытый","Oil is obtained from olives."],"topped":["was higher than; went above a certain amount","oshib ketdi, balandroq bo‘ldi","превысил, превзошёл","Temperatures topped 40 degrees."],"extracted":["took something out, often with effort","olib chiqildi, ajratib olindi","извлечён, добыт","The juice is extracted from the flowers."]});
+Object.assign(BD[4],{"descended":["went down to a lower place","tushdi, pastga tushdi","спустился","She descended the stairs slowly."]});
+Object.assign(BD[5],{"lacks":["does not have, or has too little of","yetishmaydi, yo‘q","не хватает, не имеет","The plan lacks detail."]});
+Object.assign(BD[8],{"converted":["changed from one form or use to another","aylantirildi, o‘zgartirildi","преобразован, превращён","The barn was converted into a house."]});
+Object.assign(BD[10],{"processed":["treated or prepared by a series of actions","qayta ishlandi","переработан, обработан","The milk is processed before it is sold."]});
+Object.assign(BD[13],{"leapt":["jumped suddenly or a long way","sakradi, otildi","прыгнул, подпрыгнул","He leapt over the fence."]});
+Object.assign(BD[18],{"deprived":["not given what is needed; having had it taken away","mahrum qilingan","лишённый","The children were deprived of sleep."],"rubbed":["pressed and moved against a surface","ishqaladi","потёр, растёр","She rubbed her hands to keep warm."]});
 const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
 let BK=new Set();try{BK=new Set(JSON.parse(localStorage.getItem("rr_bank_v1")||"[]"))}catch(e){}
 function saveB(){try{localStorage.setItem("rr_bank_v1",JSON.stringify([...BK]))}catch(e){}}
@@ -585,15 +607,43 @@ const LV=[{kk:"LEVEL 1",name:"Intermediate",tag:"Everyday topics and clear passa
 function refreshAll(){RF.forEach(f=>f());$("#hbn").textContent=BK.size+CU.length;document.querySelectorAll(".hbn2").forEach(e=>e.textContent=BK.size+CU.length);if(!$("#bankv").hidden)renderBank()}
 function tog(k,w){const id=k+"|"+w;BK.has(id)?BK.delete(id):BK.add(id);saveB();refreshAll()}
 
+
+const trim1=s=>(s||"").split(/[;,]/)[0].trim();
+function entry(k,w){const b=BD[k];let key=w;if(!b[key]){const lw=w.toLowerCase();if(b[lw])key=lw;else{const v=U[k].V.find(v=>v[1].includes(lw));if(!v)return null;key=v[1][0]}}return b[key]?{key,d:b[key]}:null}
+function trLines(k,w){const e=entry(k,w);return e?`<div class="tl"><span class="lg">UZ</span>${e.d[1]}<br><span class="lg">RU</span>${e.d[2]}</div>`:""}
+const pop=document.createElement("div");pop.id="pop";pop.setAttribute("role","dialog");pop.setAttribute("aria-label","Word meaning");pop.hidden=true;document.body.appendChild(pop);
+let pA=null,pK=0,pW="";
+function popBtn(){const b=pop.querySelector(".pa");if(b){const on=BK.has(pK+"|"+pW);b.textContent=on?"Added to bank ✓":"+ Add to bank";b.classList.toggle("p",on)}}
+RF.push(popBtn);
+function closePop(){pop.hidden=true;pA=null}
+function placePop(){if(!pA||!pA.isConnected){closePop();return}
+const r=(pA.getClientRects()[0]||pA.getBoundingClientRect()),vw=innerWidth,vh=innerHeight,m=10;
+if(r.bottom<0||r.top>vh){closePop();return}
+const pw=pop.offsetWidth,ph=pop.offsetHeight,below=vh-r.bottom-m,above=r.top-m;
+let left=Math.max(m,Math.min(r.left+r.width/2-pw/2,vw-pw-m)),top,pos;
+if(below>=ph+8||below>=above){top=r.bottom+8;pos="b"}else{top=r.top-ph-8;pos="t"}
+top=Math.max(m,Math.min(top,vh-ph-m));
+pop.className=pos;pop.style.left=left+"px";pop.style.top=top+"px";
+pop.style.setProperty("--ax",Math.max(18,Math.min(r.left+r.width/2-left,pw-18))+"px")}
+function openPop(a,k,w){const e=entry(k,w);if(!e)return;if(!pop.hidden&&pA===a){closePop();return}
+pA=a;pK=k;pW=e.key;
+pop.innerHTML=`<div class="ph"><span class="pw">${e.key}</span><button class="px" aria-label="Close">×</button></div><p class="pd">${e.d[0]}</p><p><span class="lg">UZ</span>${e.d[1]}</p><p><span class="lg">RU</span>${e.d[2]}</p><p class="pe">“${e.d[3]}”</p><button class="btn pa"></button>`;
+pop.hidden=false;popBtn();
+pop.querySelector(".px").onclick=closePop;pop.querySelector(".pa").onclick=()=>tog(pK,pW);
+placePop()}
+document.addEventListener("pointerdown",e=>{if(pop.hidden)return;if(pop.contains(e.target)||(pA&&pA.contains(e.target)))return;closePop()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePop()});
+addEventListener("scroll",()=>{if(!pop.hidden)placePop()},{passive:true});addEventListener("resize",()=>{if(!pop.hidden)placePop()});
+
 function build(u,k){
 const d=document.createElement("div");d.className="unit";d.hidden=true;
 u.mx=u.V.length+u.Q.length+u.S.length;u.P=[0,0,0];
 const q=s=>d.querySelector(s),qa=s=>d.querySelectorAll(s);
 d.innerHTML=`<header class="hero"><img src="${IM[k]}" alt="${u.alt}"><button class="back" data-home>‹ Level</button><button class="back bb" data-bank>My bank (<span class="bn">0</span>)</button><div class="cap"><div class="k">${u.kicker}</div><h1>${u.title}</h1></div></header>
 <div class="w"><div class="prog"><span class="k pt"></span><div class="bar"><i class="pb"></i></div></div><nav role="tablist"></nav>
-<section class="sec on"><div class="card"><h2>${u.h}</h2><p class="sub">Pick a colour, then select words with your mouse or finger. They highlight automatically. Tap the dotted key words to see their meanings, or press “+ My word” to save any other word or phrase to your bank.</p>
+<section class="sec on"><div class="card"><h2>${u.h}</h2><p class="sub">Pick a colour, then select words with your mouse or finger. They highlight automatically. Press “Show key words”, then tap a dotted word to see its meaning with Uzbek and Russian translations, or press “+ My word” to save any other word or phrase to your bank.</p>
 <div class="tools">Highlight:<button class="sw" style="background:#fff176" data-c="#fff176" aria-label="Yellow"></button><button class="sw" style="background:#a5f3b5" data-c="#a5f3b5" aria-label="Green"></button><button class="sw" style="background:#ffb3c7" data-c="#ffb3c7" aria-label="Pink"></button><button class="era">Eraser</button><button class="nwb">+ My word</button><button class="clr">Clear all</button><button class="kwb">Show key words</button></div>
-<div class="pass">${u.passage}</div><div class="tip">Tap a key word to see what it means.</div>
+<div class="pass">${u.passage}</div><div class="tip">Press “Show key words”, then tap a dotted word to see its meaning and translations.</div>
 <div class="nwf"><b>Add your own word or phrase</b><label>Word or phrase</label><input type="text" class="f-w" autocomplete="off"><label>Meaning (English)</label><input type="text" class="f-d" autocomplete="off"><label>Uzbek</label><input type="text" class="f-u" autocomplete="off"><label>Russian</label><input type="text" class="f-r" autocomplete="off"><label>Example</label><input type="text" class="f-e" autocomplete="off">
 <p class="lk">Need help? <a class="tu" target="_blank" rel="noopener">Translate to Uzbek</a><a class="tr" target="_blank" rel="noopener">Translate to Russian</a></p>
 <div class="ctl" style="justify-content:flex-start"><button class="btn p f-s">Save to bank</button><button class="btn f-c">Close</button></div></div><div class="nx"><button class="btn p" data-s="1">Start the exercises</button></div></div></section>
@@ -603,14 +653,14 @@ d.innerHTML=`<header class="hero"><img src="${IM[k]}" alt="${u.alt}"><button cla
 <section class="sec"><div class="card"><h2>Learn the words</h2><p class="sub">Read the meaning, think of the word, then tap the card.</p><div class="fc" tabindex="0" role="button"></div><div class="ctl"><button class="btn prev">Back</button><button class="btn p flip">Flip</button><button class="btn next">Next</button><button class="btn shuf">Shuffle</button></div><div class="ctl"><button class="btn fcadd"></button></div><p class="sub fcn" style="text-align:center;margin-top:12px"></p><h2 style="margin-top:22px">Word list</h2><p class="sub">Tap + to add a word to your vocabulary bank.</p><div class="wl"></div><div class="ctl"><button class="btn addall">Add all words</button></div><div class="nx"><button class="btn" data-bank>Open my bank</button><button class="btn p" data-home>Back to the level</button></div></div></section></div>`;
 const secs=qa(".sec"),nav=q("nav");
 TABS.forEach((t,i)=>{const b=document.createElement("button");b.textContent=t;b.setAttribute("role","tab");b.setAttribute("aria-selected",i==0);b.onclick=()=>go(i);nav.appendChild(b)});
-function go(i){secs.forEach((s,j)=>s.classList.toggle("on",i==j));[...nav.children].forEach((b,j)=>b.setAttribute("aria-selected",i==j));nav.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"})}
+function go(i){closePop();secs.forEach((s,j)=>s.classList.toggle("on",i==j));[...nav.children].forEach((b,j)=>b.setAttribute("aria-selected",i==j));nav.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"})}
 qa("[data-s]").forEach(b=>b.onclick=()=>go(+b.dataset.s));
 qa("[data-home]").forEach(b=>b.onclick=()=>show("L"+LV.findIndex(l=>l.units.includes(k))));qa("[data-bank]").forEach(b=>b.onclick=()=>show(-2));
 const pts=()=>{const t=u.P[0]+u.P[1]+u.P[2];q(".pt").textContent=t+" / "+u.mx+" POINTS";q(".pb").style.width=(t/u.mx*100)+"%";const ch=$("#chip"+k);if(ch)ch.textContent=t+" / "+u.mx+" points"};
 const praise=(n,m)=>n==m?" — perfect! ★":n>=m*.7?" — well done!":" — keep going, try again.";pts();
 /* highlighter */
 const pass=q(".pass"),tip=q(".tip"),orig=pass.innerHTML;let col=null,tm,touch=false,kw=false;
-function setTool(c){col=c;qa(".sw").forEach(b=>b.classList.toggle("act",b.dataset.c===c));q(".era").classList.toggle("act",c==="erase");q(".nwb").classList.toggle("act",c==="word");q(".nwf").classList.toggle("on",c==="word");pass.classList.toggle("er",c==="erase");tip.textContent=c==="erase"?"Eraser on: tap a highlighted part to remove it.":c==="word"?"Select any word or phrase in the passage, or type your own below.":c?"Highlighter on: now select words in the passage.":"Tap a key word to see what it means."}
+function setTool(c){col=c;qa(".sw").forEach(b=>b.classList.toggle("act",b.dataset.c===c));q(".era").classList.toggle("act",c==="erase");q(".nwb").classList.toggle("act",c==="word");q(".nwf").classList.toggle("on",c==="word");pass.classList.toggle("er",c==="erase");tip.textContent=c==="erase"?"Eraser on: tap a highlighted part to remove it.":c==="word"?"Select any word or phrase in the passage, or type your own below.":c?"Highlighter on: now select words in the passage.":"Press “Show key words”, then tap a dotted word to see its meaning and translations."}
 qa(".sw").forEach(b=>b.onclick=()=>setTool(col===b.dataset.c?null:b.dataset.c));
 q(".era").onclick=()=>setTool(col==="erase"?null:"erase");
 q(".nwb").onclick=()=>setTool(col==="word"?null:"word");
@@ -633,17 +683,17 @@ document.addEventListener("selectionchange",()=>{if(!touch||d.hidden)return;clea
 function kwWrap(){let h=orig;if(kw)u.V.forEach((v,i)=>v[1].some(w=>{let hit=false;h=h.replace(new RegExp("\\b"+w.replace(" ","\\s")+"\\b","i"),m=>{hit=true;return `<span class="kw" data-i="${i}">${m}</span>`});return hit}));pass.innerHTML=h}
 q(".clr").onclick=kwWrap;
 q(".kwb").onclick=()=>{kw=!kw;q(".kwb").textContent=kw?"Hide key words":"Show key words";kwWrap()};
-pass.onclick=e=>{if(col==="erase"){const m=e.target.closest("mark");if(m){m.replaceWith(...m.childNodes);return}}const c=e.target.closest(".kw");if(c){const v=u.V[c.dataset.i],w=v[1][0];tip.innerHTML=`<b>${w}</b>: ${BD[k][w][0]} <button class="btn tb" style="padding:2px 12px;border-color:var(--gold);color:var(--cream)"></button>`;const tb=tip.querySelector(".tb"),up=()=>tb.textContent=BK.has(k+"|"+w)?"Added ✓":"+ Add to bank";up();tb.onclick=()=>{tog(k,w);up()}}};
+pass.onclick=e=>{if(col==="erase"){const m=e.target.closest("mark");if(m){m.replaceWith(...m.childNodes);return}}const c=e.target.closest(".kw");if(c){const sl=getSelection();if(col&&sl&&!sl.isCollapsed)return;openPop(c,k,u.V[c.dataset.i][1][0])}};
 /* flashcards */
 let deck=u.V.map((_,i)=>i),ci=0,face=false;const fcE=q(".fc");
-function fc(){const v=u.V[deck[ci]];fcE.innerHTML=face?`<b>${v[1][0]}</b>`:`<span>${v[0]}</span>`;q(".fcn").textContent=`Card ${ci+1} of ${deck.length}`;syncFc()}
+function fc(){const v=u.V[deck[ci]];fcE.innerHTML=face?`<div><b>${v[1][0]}</b>${trLines(k,v[1][0])}</div>`:`<span>${v[0]}</span>`;q(".fcn").textContent=`Card ${ci+1} of ${deck.length}`;syncFc()}
 function syncFc(){const fa=q(".fcadd"),on=BK.has(k+"|"+u.V[deck[ci]][1][0]);fa.textContent=on?"Added to bank ✓":"+ Add this word to my bank";fa.classList.toggle("p",on)}
 q(".flip").onclick=fcE.onclick=()=>{face=!face;fc()};
 fcE.onkeydown=e=>{if(e.key=="Enter"||e.key==" "){e.preventDefault();face=!face;fc()}};
 q(".next").onclick=()=>{ci=(ci+1)%deck.length;face=false;fc()};
 q(".prev").onclick=()=>{ci=(ci-1+deck.length)%deck.length;face=false;fc()};
 q(".shuf").onclick=()=>{deck.sort(()=>Math.random()-.5);ci=0;face=false;fc()};fc();
-q(".wl").innerHTML=u.V.map(v=>{const w=v[1][0];return `<div class="wrow"><div><b>${w}</b><br><span>${BD[k][w][0]}</span></div><button class="btn ab" data-w="${w}"></button></div>`}).join("");
+q(".wl").innerHTML=u.V.map(v=>{const w=v[1][0];return `<div class="wrow"><div><b>${w}</b><br><span>${BD[k][w][0]}</span>${trLines(k,w)}</div><button class="btn ab" data-w="${w}"></button></div>`}).join("");
 const ab=[...qa(".ab")];
 ab.forEach(b=>b.onclick=()=>tog(k,b.dataset.w));
 q(".fcadd").onclick=()=>tog(k,u.V[deck[ci]][1][0]);
@@ -660,7 +710,8 @@ q(".e2").innerHTML=u.Q.map((x,i)=>`<div style="margin-bottom:16px"><b>${i+1}. ${
 q(".c2").onclick=()=>{let n=0;u.Q.forEach((x,i)=>{const os=qa(`.e2 > div:nth-child(${i+1}) .opt`);os.forEach(o=>o.className="opt");const s=q(`input[name=q${k}_${i}]:checked`);if(s&&+s.value==x[2])n++;else if(s)os[s.value].classList.add("no");os[x[2]].classList.add("ok")});u.P[1]=n;pts();q(".sc2").textContent=`Score: ${n} / ${u.Q.length}`+praise(n,u.Q.length)};
 q(".r2").onclick=()=>{qa(".e2 input").forEach(i=>i.checked=false);qa(".e2 .opt").forEach(o=>o.className="opt");u.P[1]=0;pts();q(".sc2").textContent=""};
 /* ex3 */
-const bk=[...u.bank].sort();q(".bank").innerHTML=bk.map(w=>`<span>${w}</span>`).join("");
+const bk=[...u.bank].sort();q(".bank").innerHTML=bk.map(w=>{const e=entry(k,w);return `<span class="bw" tabindex="0" role="button" data-w="${w}" aria-label="${w}: show meaning">${w}${e?`<small>${trim1(e.d[1])} · ${trim1(e.d[2])}</small>`:""}</span>`}).join("");
+qa(".bank .bw").forEach(c=>{c.onclick=()=>openPop(c,k,c.dataset.w);c.onkeydown=ev=>{if(ev.key=="Enter"||ev.key==" "){ev.preventDefault();openPop(c,k,c.dataset.w)}}});
 q(".e3").innerHTML=u.S.map((s,i)=>`<div class="row"><span class="q"><b>${i+1}.</b> ${s[0]} <select aria-label="Gap ${i+1}"><option value="">choose…</option>${bk.map(w=>`<option>${w}</option>`).join("")}</select>${s[1]}</span></div>`).join("");
 const sl=qa(".e3 select");
 q(".c3").onclick=()=>{let n=0;u.S.forEach((s,i)=>{const ok=sl[i].value==s[2];if(ok)n++;sl[i].classList.toggle("ok",ok);sl[i].classList.toggle("no",!ok)});u.P[2]=n;pts();q(".sc3").textContent=`Score: ${n} / ${u.S.length}`+praise(n,u.S.length)};
@@ -695,7 +746,7 @@ $("#lcards").querySelectorAll(".pick").forEach(b=>b.onclick=()=>show(+b.dataset.
 renderHome();
 /* page transitions */
 let busy=false;
-function swap(to){if(to===-2)last=cur;cur=to;$("#home").hidden=to!==-1;$("#bankv").hidden=to!==-2;$("#lvl").hidden=typeof to!=="string";if(to===-1)renderHome();if(to===-2)renderBank();if(typeof to==="string")renderLvl(+to.slice(1));document.querySelectorAll(".unit").forEach((e,i)=>e.hidden=i!==to);window.scrollTo(0,0)}
+function swap(to){closePop();if(to===-2)last=cur;cur=to;$("#home").hidden=to!==-1;$("#bankv").hidden=to!==-2;$("#lvl").hidden=typeof to!=="string";if(to===-1)renderHome();if(to===-2)renderBank();if(typeof to==="string")renderLvl(+to.slice(1));document.querySelectorAll(".unit").forEach((e,i)=>e.hidden=i!==to);window.scrollTo(0,0)}
 function show(to){
 if(busy)return;if(reduce){swap(to);return}
 busy=true;const c=$("#cur");
